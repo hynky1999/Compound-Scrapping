@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@apollo/client": "^3.5.9",
+    "axios": "^0.26.0",
+    "cross-fetch": "^3.1.5",
+    "crypto-price": "^0.0.6",
+    "fs": "^0.0.1-security",
+    "graphql": "^16.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.18",
+    "typescript": "^4.5.5"
+  }
+}
