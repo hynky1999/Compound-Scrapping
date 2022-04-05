@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const promises_1 = require("fs/promises");
 const axios_1 = require("axios");
 const ctoken_url = "/ctoken";
-const start_date = new Date("1.1.2021");
+const start_date = new Date("1.1.2019");
 // const start_date : Date = new Date("2.19.2022")
 const end_date = new Date(Date.now());
 // const end_date : Date = new Date("1.3.2021")
@@ -22,7 +22,7 @@ function saveMarketData(data) {
         data.sort((firstEl, secondEl) => { return firstEl.block_timestamp < secondEl.block_timestamp ? -1 : 1; });
         let file;
         try {
-            file = yield (0, promises_1.open)('output.csv', 'a');
+            file = yield (0, promises_1.open)('output2.csv', 'a');
             file.truncate();
             const csv_header = 'Date,Name,Symbol,Price(USD),Price(ETH),Supply APY,Borrow APY,Total Supply,Total Borrow,Market Liquidity,# of Suppliers,# of Borrowers,ETH Borrow Cap,Reserves,Reserve Factor,Collateral Factor,cToken Minted,Exchange Rate';
             file.write(csv_header + '\n');
@@ -59,6 +59,8 @@ function readQueries() {
             }
             catch (e) {
                 console.log(e);
+                // Wait for 1 second
+                yield new Promise(resolve => setTimeout(resolve, 1000));
                 continue;
             }
             console.log(`Fetched from ${current_date.toLocaleDateString()}`);
