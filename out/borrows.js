@@ -243,17 +243,6 @@ const client = new core_1.ApolloClient({
     uri: APIURL,
     cache: new cache_1.InMemoryCache(),
 });
-// const firstBlock = 11565022;
-const firstBlock = 0;
-const firstBlockTime = new Date("2021-01-01").getTime() / 1000;
-// const firstBlockTime = new Date("2021-01-01").getTime()/1000
-const lastBlockTime = new Date("2022-02-19").getTime() / 1000;
-// const lastBlockTime = new Date("2019-02-19").getTime()/1000
-let borrowQueue = new Queue(client, 1000, borrowQuery, firstBlock);
-let repayQueue = new Queue(client, 1000, repayQuery, firstBlock);
-let liquidationQueue = new Queue(client, 1000, liquidationQuery, firstBlock);
-// Order is important
-let eventQueue = new EventQueue([borrowQueue, repayQueue, liquidationQueue]);
 function write_to_stream(stream, { data, amount, apy, start_date, end_date }, event) {
     start_date = new Date(start_date).toLocaleDateString('en-GB');
     end_date = new Date(end_date).toLocaleDateString('en-GB');
@@ -291,8 +280,9 @@ function run() {
         const borrowers = new Map();
         let event;
         const apys = new APYS();
-        yield apys.load_apy_from_file("output2.csv");
-        yield apys.load_apy_from_file("output.csv");
+        for (const quotes_file of quotes_files) {
+            yield apys.load_apy_from_file(quotes_file);
+        }
         const writableStream = csv_writer({ headers: [
                 "Event",
                 "Start date",
@@ -353,5 +343,14 @@ function run() {
         }
     });
 }
+const firstBlock = 0;
+const firstBlockTime = new Date("2021-01-01").getTime() / 1000;
+const lastBlockTime = new Date("2022-02-19").getTime() / 1000;
+const quotes_files = ["output.csv", "output2.csv"];
+let borrowQueue = new Queue(client, 1000, borrowQuery, firstBlock);
+let repayQueue = new Queue(client, 1000, repayQuery, firstBlock);
+let liquidationQueue = new Queue(client, 1000, liquidationQuery, firstBlock);
+// Order is important
+let eventQueue = new EventQueue([borrowQueue, repayQueue, liquidationQueue]);
 run();
 //# sourceMappingURL=borrows.js.map

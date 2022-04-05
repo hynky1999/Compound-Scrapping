@@ -276,19 +276,6 @@ const client = new ApolloClient({
 });
 
 
-// const firstBlock = 11565022;
-const firstBlock = 0;
-const firstBlockTime = new Date("2021-01-01").getTime()/1000
-// const firstBlockTime = new Date("2021-01-01").getTime()/1000
-const lastBlockTime = new Date("2022-02-19").getTime()/1000
-// const lastBlockTime = new Date("2019-02-19").getTime()/1000
-let borrowQueue = new Queue(client, 1000, borrowQuery, firstBlock);
-let repayQueue = new Queue(client, 1000, repayQuery,firstBlock);
-let liquidationQueue = new Queue(client, 1000, liquidationQuery,firstBlock);
-// Order is important
-let eventQueue = new EventQueue([borrowQueue, repayQueue, liquidationQueue])
-
-
 
 function write_to_stream(stream, {data, amount, apy, start_date, end_date}, event){
   start_date = new Date(start_date).toLocaleDateString('en-GB')
@@ -328,8 +315,9 @@ async function run() {
   const borrowers = new Map<string, Borrower>()
   let event: any
   const apys = new APYS()
-  await apys.load_apy_from_file("output2.csv")
-  await apys.load_apy_from_file("output.csv")
+  for (const quotes_file of quotes_files) {
+    await apys.load_apy_from_file(quotes_file)
+  }
 
 
   const writableStream = csv_writer({headers: [
@@ -394,5 +382,20 @@ async function run() {
     }
   }
 }
+
+
+
+const firstBlock = 0;
+const firstBlockTime = new Date("2021-01-01").getTime()/1000
+const lastBlockTime = new Date("2022-02-19").getTime()/1000
+// Order important first file is just for older quotes and the newer will be used from later file
+const quotes_files = ["output2.csv", "output.csv"]
+let borrowQueue = new Queue(client, 1000, borrowQuery, firstBlock);
+let repayQueue = new Queue(client, 1000, repayQuery,firstBlock);
+let liquidationQueue = new Queue(client, 1000, liquidationQuery,firstBlock);
+// Order is important
+let eventQueue = new EventQueue([borrowQueue, repayQueue, liquidationQueue])
+
+
 
 run();
